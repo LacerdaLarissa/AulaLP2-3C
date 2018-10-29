@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApp5
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            char outro;
+
+            do
+            {
+                Console.Clear();
+
+                Console.WriteLine("Cadastro de Alunos");
+                Console.Write("Nome: ");
+                string nome = Console.ReadLine();
+
+                Console.Write("Sobrenome: ");
+                string sobrenome = Console.ReadLine();
+
+                Console.Write("Idade: ");
+                int idade = int.Parse(Console.ReadLine());
+
+                SqlConnection conexao = new SqlConnection(
+                    @"Data source = EN2LIC12; 
+                      Initial catalog = AulaLP2;
+                      Integrated security = SSPI;");
+                //alterar o Data Source de acordo com o número da máquina
+
+                SqlCommand comando = new SqlCommand();
+                comando.Connection = conexao;
+                comando.CommandText = string.Format(@"
+                      INSERT INTO ALUNO (Nome, Sobrenome, Idade)
+                      VALUES ( @nome , @sobre , @idade);"); //Não teve que se preocupar com aspas simples pq o próprio "AddWithValue" fez isso
+
+                comando.Parameters.AddWithValue("@nome", nome); //@ serve pra criar strings sem se preocupar com a qtd de linhas que ocupar
+                comando.Parameters.AddWithValue("@sobre", sobrenome);
+                comando.Parameters.AddWithValue("@idade", idade);
+
+
+                // Exibindo o comando final produzido com o string.Format e que será executado
+                // Console.WriteLine("Comando: {0}", comando.CommandText);
+
+                conexao.Open();
+                int result = comando.ExecuteNonQuery();
+                conexao.Close();
+
+                if (result > 0)
+                    Console.WriteLine("Registro foi inserido com sucesso.");
+                else
+                    Console.WriteLine("Algo deu errado");
+
+                Console.Write("Deseja inserir outro (S/N)? ");
+                outro = Console.ReadKey().KeyChar;
+
+            } while (outro == 'S');
+        }
+    }
+}
